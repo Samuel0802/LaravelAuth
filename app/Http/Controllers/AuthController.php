@@ -47,7 +47,7 @@ class AuthController extends Controller
             ->where(function ($query) {
                 $query->whereNull('blocked_until')
 
-                    //Seleciona usuários cujo bloqueio já expirou.
+                    //Seleciona usuários cujo bloqueio já expirou (um dia anterior).
                     ->orWhere('blocked_until', '<=', now());
             })
             //Caso campo for NULL não está verificado email
@@ -57,13 +57,13 @@ class AuthController extends Controller
             ->first();
 
         //Verificar se o usuário for falso (Não existe)
-        if(!$user) {
+        if (!$user) {
             return back()->withInput()->with('invalid_login', 'Login ou Senha incorretos');
         }
 
         //Verificar se a senha é valida
-        if(!password_verify($request['password'], $user->password)){
-           return back()->withInput()->with('invalid_login', 'Login ou Senha incorretos');
+        if (!password_verify($request['password'], $user->password)) {
+            return back()->withInput()->with('invalid_login', 'Login ou Senha incorretos');
         }
 
         //Atualizar o ultimo_login_at do usuário data atual
@@ -78,6 +78,19 @@ class AuthController extends Controller
 
         //redirecionar
         return redirect()->intended(route('home'));
+    }
 
+    public function logout(Request $request)
+    {
+        //função de logout do auth
+        Auth::logout();
+
+        // Encerra completamente a sessão atual do usuário
+        $request->session()->invalidate();
+
+        //Gera um novo token CSRF para a sessão
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }

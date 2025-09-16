@@ -20,7 +20,7 @@ class UsersSeeder extends Seeder
               'email' => "user$index@gmail.com",
               'genero' => "masculino",
               'data_nascimento' => "1990-0{$index}-0{$index}",
-              'password' => bcrypt('123456'),
+              'password' => bcrypt('Admin123'),
               'email_verified_at' => Carbon::now(),
               'ativo' => true,
             ]);
