@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthRegisterRequest;
+use App\Http\Requests\LoginRequest;
+use App\Mail\NewUserConfirmation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -16,29 +21,8 @@ class AuthController extends Controller
     }
 
     //FUNÇÃO PARA AUTENTICAÇÃO DO USUÁRIO
-    public function authenticate(Request $request)
+    public function authenticate(LoginRequest $request)
     {
-
-        //Validação do Form
-        $regra = [
-            'username' => 'required|string|min:3|max:50',
-            'password' => 'required|min:6|max:32|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
-        ];
-
-        $feedback = [
-            'username.required' => 'O usuário é Obrigatório',
-            'username.string' => 'O usuário deve ter apenas Letras',
-            'username.min' => 'O usuário deve ter no mínimo :min caracteres',
-            'username.max' => 'O usuário deve ter no máximo :max caracteres',
-
-            'password.required' => 'A senha é Obrigatória',
-            'password.min' => 'A senha deve ter no mínimo :min caracteres',
-            'password.max' => 'A senha deve ter no máximo :max caracteres',
-            'password.regex' => 'A Senha deve conter pelo menos uma letra maiúscula, uma letra minúscula e um número',
-        ];
-
-        $request->validate($regra, $feedback);
-
         //Verificar se o usuário existe
         $user = User::where('username', $request['username'])
             //verificar se user é ativo
@@ -80,6 +64,7 @@ class AuthController extends Controller
         return redirect()->intended(route('home'));
     }
 
+    //FUNÇÃO PARA LOGOUT DO USER
     public function logout(Request $request)
     {
         //função de logout do auth
@@ -92,5 +77,51 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    //PAGINA DE REGISTRO
+    public function register(): View
+    {
+        return view('auth.register');
+    }
+
+    //FUNÇÃO PARA CADASTRO DO USUÁRIO
+    public function store_user(AuthRegisterRequest $request, User $user)
+    {
+
+        //Criar um novo usuário definindo um token de verificação de email
+        $user = User::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'data_nascimento' => $request->data_nascimento,
+            'genero' => $request->genero,
+            'password' => bcrypt($request->password),
+            'token' => Str::random(64),
+        ]);
+
+        //Gerar Link
+        $confirmation_link = route('new_user_confirmation', ['token' => $user->token]);
+
+        //Enviar Email
+        $resultado = Mail::to($user->email)->send(new NewUserConfirmation($user->username, $confirmation_link));
+
+        //Verificar se o email foi enviado com sucesso
+        if (!$resultado) {
+            return back()->withInput()->with('register_invalid', 'Não foi possível enviar o email de confirmação');
+        }
+
+        //Criar o usuario na base de dados
+
+        return view('auth.email_sent', [
+            'username' => $user->username,
+            'email' => $user->email,
+            'confirmation_link' => $confirmation_link,
+        ]);
+    }
+
+
+    public function new_user_confirmation($token)
+    {
+        echo "novo Usuario confirmado";
     }
 }
