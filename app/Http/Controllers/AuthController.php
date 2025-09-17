@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthProfileRequest;
 use App\Http\Requests\AuthRegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Mail\NewUserConfirmation;
@@ -128,8 +129,8 @@ class AuthController extends Controller
         $user = User::where('token', $token)->first();
 
         //Se não foi encontrado usuário
-        if(!$user){
-           return redirect()->route('login');
+        if (!$user) {
+            return redirect()->route('login');
         }
 
         //Confirmar o registro do usuário
@@ -142,8 +143,7 @@ class AuthController extends Controller
         //autenticação automática (login) do usuário confirmado
         Auth::login($user);
         //redirecionar
-       return view('auth.new_user_confirmation');
-
+        return view('auth.new_user_confirmation');
     }
 
 
@@ -153,9 +153,24 @@ class AuthController extends Controller
         return view('auth.profile');
     }
 
-    public function edit_profile(Request $request){
+    public function edit_profile(AuthProfileRequest $request)
+    {
 
-        echo 'Recuperação de senha com sucesso';
+        //Verificar se a nova password é valida -> para ser definida
+        if (!password_verify($request->current_password, Auth::user()->password)) {
+
+            return back()->with('password_invalid', 'A Senha Atual é inválida');
+        }
+
+        //Atualizar a nova senha na base da dados
+        $user = Auth::user();
+        $user->password = bcrypt($request->new_password);
+        $user->save();
+
+        //Apresentar uma mensagem de sucesso
+        Auth::user()->password = $request->new_password;
+
+        //Apresenta uma mensagem de sucesso
+        return redirect()->route('profile')->with('success', 'Senha Atualizada com Sucesso');
     }
-
 }
