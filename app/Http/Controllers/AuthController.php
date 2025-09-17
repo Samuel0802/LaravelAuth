@@ -6,6 +6,7 @@ use App\Http\Requests\AuthRegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Mail\NewUserConfirmation;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -120,8 +121,28 @@ class AuthController extends Controller
     }
 
 
+    //FUNÇÃO PARA CONFIRMAR O REGISTRO DO USUÁRIO VIA EMAIL
     public function new_user_confirmation($token)
     {
-        echo "novo Usuario confirmado";
+        //Verificar se o token é valido
+        $user = User::where('token', $token)->first();
+
+        //Se não foi encontrado usuário
+        if(!$user){
+           return redirect()->route('login');
+        }
+
+        //Confirmar o registro do usuário
+        $user->email_verified_at = Carbon::now();
+        //Depois token vira null
+        $user->token = null;
+        $user->ativo = true;
+        $user->save();
+
+        //autenticação automática (login) do usuário confirmado
+        Auth::login($user);
+        //redirecionar
+       return view('auth.new_user_confirmation');
+
     }
 }
