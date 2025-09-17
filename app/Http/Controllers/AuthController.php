@@ -145,4 +145,17 @@ class AuthController extends Controller
        return view('auth.new_user_confirmation');
 
     }
+
+
+    //PAGINA DE PERFIL DO USER
+    public function profile(): View
+    {
+        return view('auth.profile');
+    }
+
+    public function edit_profile(Request $request){
+
+        echo 'Recuperação de senha com sucesso';
+    }
+
 }

@@ -22,6 +22,14 @@ Route::middleware(['guest'])->group(function(){
 //Rotas para usuário autenticado (AUTENTICADO)
 Route::middleware(['auth'])->group(function(){
 
+    //PAGINA HOME
    Route::get('/', [MainController::class, 'home'])->name('home');
+
+    //PAGINA DE PERFIL
+   Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+   Route::post('/profile', [AuthController::class, 'edit_profile'])->name('password.store');
+
+   //FUNÇÃO PARA LOGOUT
    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
 });
