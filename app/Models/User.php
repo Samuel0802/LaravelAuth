@@ -21,10 +21,10 @@ class User extends AuthUser
         'username',
         'genero',
         'data_nascimento',
+        'token_created_at',
         'ativo',
         'password',
         'token',
 
     ];
-
 }

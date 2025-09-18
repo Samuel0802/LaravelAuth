@@ -23,7 +23,7 @@ class AuthProfileRequest extends FormRequest
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'current_password.required' => 'A senha atual é obrigatória',
