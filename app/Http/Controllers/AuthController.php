@@ -286,4 +286,43 @@ class AuthController extends Controller
             'success' => true
         ]);
     }
+
+    public function destroy_profile(Request $request)
+    {
+        //validação do formulário
+        $regra = [
+            'delete_confirmation' => 'required|in:ELIMINAR|min:8|max:8',
+        ];
+
+        $feedback = [
+            'delete_confirmation.required' => 'O campo é obrigatório',
+            'delete_confirmation.in' => 'É necessário digitar ELIMINAR',
+            'delete_confirmation.min' => 'O campo deve conter 8 caracteres',
+            'delete_confirmation.max' => 'O campo deve conter 8 caracteres',
+        ];
+
+        $request->validate($regra, $feedback);
+
+
+        //remover a conta do usuário (HARD DELETE ou SOFT DELETE)
+
+        $user = Auth::user();
+        //Desativar o user
+        $user->ativo = false;
+        //salvar o status
+        $user->save();
+
+        //Soft deletes
+        $user->delete();
+
+        //Hard Deletes
+        //  $user = Auth::user();
+        //  $user->ForceDelete();
+
+        //logout do user
+        Auth::logout();
+
+        //redirecionar para login
+        return redirect()->route('login')->with(['conta_deletada' => true]);
+    }
 }

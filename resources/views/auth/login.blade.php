@@ -53,11 +53,15 @@
                     @endif
 
                     @if(session('success'))
-                         <p class="mt-3 alet alert-success text-center p-2">
+                         <p class="mt-3 alert alert-success text-center p-2">
                           Senha redefinida com sucesso!</p>
                     @endif
 
-
+                        @if(session('conta_deletada'))
+                         <p class="mt-3 alert alert-success text-center p-2">
+                              Conta de usuário removida com sucesso!
+                        </p>
+                    @endif
 
                 </div>
             </div>
