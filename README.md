@@ -47,3 +47,30 @@ Sem usar as ferramentas do Breeze ou Fortify
  - php artisan vendor:publish --tag=laravel-pt-br-localization
 
 
+### TELA LOGIN
+
+![alt text](image.png)
+
+### TELA CADASTRAR USER
+
+![alt text](image-1.png)
+
+### TELA RECUPERAR SENHA
+
+![alt text](image-2.png)
+
+### TELA VERIFICAÇÃO DE EMAIL APÓS CADASTRAR
+
+![alt text](image-3.png)
+
+### TELA BOAS VINDAS APÓS VERIFICAÇÃO DE EMAIL
+
+![alt text](image-4.png)
+
+### TELA HOME
+
+![alt text](image-5.png)
+
+### TELA PERFIL
+
+![alt text](image-6.png)
